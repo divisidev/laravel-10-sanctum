@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\PostRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PostResource;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 
 class PostController extends Controller
 {
@@ -48,20 +48,8 @@ class PostController extends Controller
         }
     }
 
-    public function store(Request $request){
+    public function store(PostRequest $request){
         try {
-            $validator = Validator::make($request->all(), [
-                'title'   => 'required|string|max:255',
-                'content' => 'required|string',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'message' => 'Validation errors',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
             $cover = $request->file('cover');
 
             if ($cover) {
@@ -88,20 +76,8 @@ class PostController extends Controller
         }
     }
 
-    public function update(Request $request, $id){
+    public function update(PostRequest $request, $id){
         try {
-            $validator = Validator::make($request->all(), [
-                'title'   => 'required|string|max:255',
-                'content' => 'required|string',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'message' => 'Validation errors',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
             $post = $request->user()->posts()->firstWhere('id', $id);
 
             if (!$post) {
