@@ -3,46 +3,23 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Post extends Model
 {
-    use HasFactory;
+    use HasFactory, Sluggable;
 
     protected $guarded = [];
 
-    protected static function booted()
+    public function sluggable(): array
     {
-        static::creating(function ($post) {
-            $post->slug = \Str::slug($post->title);
-            $latestSlug =
-                static::whereRaw("slug RLIKE '^{$post->slug}(-[0-9]*)?$'")
-                ->latest('id')
-                ->pluck('slug')
-                ->first();
-
-            if ($latestSlug) {
-                $pieces = explode('-', $latestSlug);
-                $number = intval(end($pieces));
-                $post->slug .= '-' . ($number + 1);
-            }
-        });
-
-        static::updating(function ($post) {
-            $post->slug = \Str::slug($post->title);
-            $latestSlug =
-                static::whereRaw("slug RLIKE '^{$post->slug}(-[0-9]*)?$'")
-                ->latest('id')
-                ->pluck('slug')
-                ->first();
-
-            if ($latestSlug) {
-                $pieces = explode('-', $latestSlug);
-                $number = intval(end($pieces));
-                $post->slug .= '-' . ($number + 1);
-            }
-        });
+        return [
+            'slug' => [
+                'source' => 'title'
+            ]
+        ];
     }
 
     public function getCoverPathAttribute()
